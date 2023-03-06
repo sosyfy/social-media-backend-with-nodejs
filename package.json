@@ -11,7 +11,7 @@
     "#models/*": "./src/models/*.js",
     "#routes/*": "./src/routes/*.js",
     "#services/*": "./src/services/*.js",
-    "#docs/*": "./src/docs/*.json"
+    "#data/*": "./src/data/*.js"
   },
   "main": "main.js",
   "scripts": {
