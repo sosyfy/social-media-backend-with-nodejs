@@ -14,6 +14,10 @@ const UserSchema = new mongoose.Schema(
     about:{
         type: String, 
     },
+    connections: {
+        type: Array,
+        default: [],
+    },
     location: String,
     photo: {
         id: { 
@@ -69,14 +73,10 @@ const UserSchema = new mongoose.Schema(
            },
         }
       ],
-    skills : [ 
-        {
-           skillName : {
-               type: String,
-               required : true 
-           },
-        }
-      ],
+    skills : {
+        type: [String],
+        default: []
+    },
     preferredPositions: [
         {
             position: {
@@ -88,7 +88,11 @@ const UserSchema = new mongoose.Schema(
                 required:true
             }
         }
-    ]
+    ],
+    bookmarkedPosts: {
+        type: Array,
+        default: []
+    }
   },
   { timestamps: true }
 );
