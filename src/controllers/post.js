@@ -92,7 +92,7 @@ exports.deletePost =  async (req, res) => {
 }
 
 
-exports.likePost =  async(req, res) => {
+exports.toggleLikePost =  async(req, res) => {
     try {
         const currentUserId = req.user.id
         const post = await Post.findById(req.params.id)
