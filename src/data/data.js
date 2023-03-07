@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose')
 
 const userIds = [
   new mongoose.Types.ObjectId(),
@@ -22,3 +22,4 @@ export const users = [
       __v: 0,
     }
 ]
+

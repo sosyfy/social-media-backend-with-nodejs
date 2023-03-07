@@ -1,15 +1,15 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose')
 
 const UserSchema = new mongoose.Schema(
   {
-    user: {
+    userInfo: {
         type : mongoose.Schema.ObjectId,
         ref: 'Auth',
-        required: true 
+        required: true,
       },
     jobTitle :{
         type: String,
-        required : true 
+        // required : true 
     },
     about:{
         type: String, 
@@ -33,23 +33,23 @@ const UserSchema = new mongoose.Schema(
         {
            position : {
                type: String,
-               required : true 
+            //    required : true 
            },
            company: {
                type: String,
-               required: true 
+            //    required: true 
            },
            type: {
                type: String,
-               required: true 
+            //    required: true 
            },
            startDate : {
-               type: Number,
-               required : true 
+               type: String,
+            //    required : true 
            },
            endDate : {
-               type: Number,
-               required : true 
+               type: String,
+            //    required : true 
            },
         }
       ],
@@ -57,19 +57,19 @@ const UserSchema = new mongoose.Schema(
         {
            schoolName : {
                type: String,
-               required : true 
+            //    required : true 
            },
            course: {
                type: String,
-               required: true 
+            //    required: true 
            },
            startDate : {
-               type: Number,
-               required : true 
+               type: String,
+            //    required : true 
            },
            graduationDate : {
-               type: Number,
-               required : true 
+               type: String,
+            //    required : true 
            },
         }
       ],
@@ -81,21 +81,28 @@ const UserSchema = new mongoose.Schema(
         {
             position: {
                 type: String,
-                required:true
+                // required:true
             },
             years: {
                 type: Number,
-                required:true
+                // required:true
             }
         }
     ],
     bookmarkedPosts: {
         type: Array,
         default: []
+    },
+    email: {
+        type: String,
+        unique: true,
+        sparse: true,
     }
   },
   { timestamps: true }
 );
 
-const User = mongoose.model("User", UserSchema);
-export default User;
+
+module.exports = mongoose.model("User", UserSchema);
+ 
+

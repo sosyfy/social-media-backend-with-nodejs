@@ -6,16 +6,13 @@ const authSchema = new mongoose.Schema(
     {
       email: {
         type: String,
-        match: /^\S+@\S+\.\S+$/,
         required: true,
-        unique: true,
-        trim: true,
-        lowercase: true,
+        unique: true
       },
       password: {
         type: String,
         required: true,
-        minlength: 6,
+        minlength: 4,
         maxlength: 50,
         select: false 
       },

@@ -62,7 +62,7 @@ app.use('/doc', swaggerUi.serve, swaggerUi.setup(swaggerFile))
 
 
 //& routes
-app.use('/', v1routes)
+app.use('/v1', v1routes)
 
 
 
