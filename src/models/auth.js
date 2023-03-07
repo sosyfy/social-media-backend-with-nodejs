@@ -25,6 +25,10 @@ const authSchema = new mongoose.Schema(
         min: 2,
         max: 50,
       },
+      adminNo: {
+        type: String,
+        required: true,
+      },
       lastName: {
         type: String,
         required: true,
