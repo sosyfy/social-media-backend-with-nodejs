@@ -7,8 +7,13 @@ const ForumPostSchema = new mongoose.Schema({
         required: true,
     },
     creator: {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
+        required: true,
+    },
+    userInfo: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Auth',
         required: true,
     },
     description: {
@@ -16,16 +21,16 @@ const ForumPostSchema = new mongoose.Schema({
         required: true,
     },
     likes: [{
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
     }],
     comments: [{
-        type: Schema.Types.ObjectId,
-        ref: 'ForumPostComment',
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Comment',
     }],
     category: {
         type: String,
-        enum: ['job', 'resources', 'resume building', 'general'],
+        enum: ['job', 'resources', 'resume', 'general'],
         required: true,
     },
     views: {
@@ -37,6 +42,4 @@ const ForumPostSchema = new mongoose.Schema({
     }],
 }, { timestamps: true });
 
-
-const ForumPost = mongoose.model('ForumPost', ForumPostSchema);
-module.exports = ForumPost;
+module.exports = mongoose.model('ForumPost', ForumPostSchema);

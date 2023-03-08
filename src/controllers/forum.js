@@ -1,13 +1,18 @@
-const ForumPost = require('#/models/forum');
+const ForumPost = require('#models/forum')
+const User = require('#models/user')
 // Create forum post 
 
 exports.createForumPost = async (req, res) => {
     const { title, description, category } = req.body;
-    const creater = req.user.id;
-
+    const creator = req.user.id;
     try {
-        const forumPost = await ForumPost.create({ title, creater, description, category });
-        res.status(201).json(forumPost);
+        const user = await User.findById(req.user.id);
+        const userInfo = user.userInfo;
+        const forumPost = await ForumPost.create({ title, userInfo, creator, description, category });
+        const forumPosts = await ForumPost.find({ category }).populate("userInfo")
+            .sort({ createdAt: 1 })
+        res.status(201).json(forumPosts);
+
     } catch (err) {
         res.status(400).json({ error: err.message });
     }
@@ -59,7 +64,8 @@ exports.getForumPostsByCategory = async (req, res) => {
     const skip = (page - 1) * limit;
     try {
         const forumPosts = await ForumPost.find({ category })
-            .sort({ createdAt: -1 })
+            .populate("userInfo")
+            .sort({ createdAt: 1 })
             .skip(skip)
             .limit(limit);
 
@@ -82,6 +88,7 @@ exports.getFilteredForumPosts = async (req, res) => {
             const pastFewHours = new Date(Date.now() - 1000 * 60 * 60 * 3); // Last 3 hours
             sort = { likes: -1, createdAt: -1 };
             const trendingForumPosts = await ForumPost.find({ createdAt: { $gte: pastFewHours }, category })
+                .populate("userInfo")
                 .sort(sort)
                 .skip(skip)
                 .limit(limit);
@@ -91,6 +98,7 @@ exports.getFilteredForumPosts = async (req, res) => {
         case 'most-liked':
             sort = { likes: -1, createdAt: -1 };
             const mostLikedForumPosts = await ForumPost.find({ category })
+                .populate("userInfo")
                 .sort(sort)
                 .skip(skip)
                 .limit(limit);
@@ -99,8 +107,9 @@ exports.getFilteredForumPosts = async (req, res) => {
             break;
 
         case 'latest':
-            sort = { createdAt: -1 };
+            sort = { createdAt: 1 };
             const latestForumPosts = await ForumPost.find({ category })
+                .populate("userInfo")
                 .sort(sort)
                 .skip(skip)
                 .limit(limit);
@@ -113,11 +122,11 @@ exports.getFilteredForumPosts = async (req, res) => {
 };
 
 // getForumPostById
-exports.getForumPostsByCategory = async (req, res) => {
+exports.getForumPostById = async (req, res) => {
     const { forumPostId } = req.params;
 
     try {
-        const forumPost = await ForumPost.findById(forumPostId)
+        const forumPost = await ForumPost.findById(forumPostId).populate("userInfo")
         res.json(forumPost);
     } catch (err) {
         res.status(400).json({ error: err.message });
