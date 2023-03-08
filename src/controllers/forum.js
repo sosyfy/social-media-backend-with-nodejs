@@ -17,10 +17,11 @@ exports.createForumPost = async (req, res) => {
 // Edit forum post 
 
 exports.editForumPost = async (req, res) => {
-    const { id } = req.params;
+    const { forumPostId } = req.params;
     const { title, description } = req.body;
     try {
-        const forumPost = await ForumPost.findByIdAndUpdate(id, { title, description }, { new: true });
+        const forumPost = await ForumPost.findByIdAndUpdate(forumPostId, { title, description }, { new: true });
+
         res.json(forumPost);
     } catch (err) {
         res.status(400).json({ error: err.message });
@@ -29,18 +30,19 @@ exports.editForumPost = async (req, res) => {
 // Like forum post 
 
 exports.likeForumPost = async (req, res) => {
-    const { id } = req.params; const userId = req.user._id;
+    const { forumPostId } = req.params;
+    const userId = req.user.id;
     try {
-        const forumPost = await ForumPost.findById(id);
+        const forumPost = await ForumPost.findById(forumPostId);
         if (!forumPost) {
             return res.status(404).json({ error: 'Forum post not found.' });
         }
         let updatedForumPost;
         const alreadyLiked = forumPost.likes.includes(userId);
         if (alreadyLiked) {
-            updatedForumPost = await ForumPost.findByIdAndUpdate(id, { $pull: { likes: userId } }, { new: true });
+            updatedForumPost = await ForumPost.findByIdAndUpdate(forumPostId, { $pull: { likes: userId } }, { new: true });
         } else {
-            updatedForumPost = await ForumPost.findByIdAndUpdate(id, { $push: { likes: userId } }, { new: true });
+            updatedForumPost = await ForumPost.findByIdAndUpdate(forumPostId, { $push: { likes: userId } }, { new: true });
         }
 
         res.json(updatedForumPost);
@@ -69,7 +71,7 @@ exports.getForumPostsByCategory = async (req, res) => {
 // Trending, most liked, latest forum posts
 
 exports.getFilteredForumPosts = async (req, res) => {
-    const { filter , category } = req.params;
+    const { filter, category } = req.params;
     const { page = 1 } = req.query;
     const limit = 20;
     const skip = (page - 1) * limit;
@@ -79,7 +81,7 @@ exports.getFilteredForumPosts = async (req, res) => {
         case 'trending':
             const pastFewHours = new Date(Date.now() - 1000 * 60 * 60 * 3); // Last 3 hours
             sort = { likes: -1, createdAt: -1 };
-            const trendingForumPosts = await ForumPost.find({ createdAt: { $gte: pastFewHours } , category })
+            const trendingForumPosts = await ForumPost.find({ createdAt: { $gte: pastFewHours }, category })
                 .sort(sort)
                 .skip(skip)
                 .limit(limit);
@@ -110,15 +112,16 @@ exports.getFilteredForumPosts = async (req, res) => {
     }
 };
 
+// getForumPostById
+exports.getForumPostsByCategory = async (req, res) => {
+    const { forumPostId } = req.params;
 
-// Increment views for forum post 
-
-exports.incrementForumPostViews = async (req, res) => {
-    const { id } = req.params;
     try {
-        const forumPost = await ForumPost.findByIdAndUpdate(id, { $inc: { views: 1 } }, { new: true });
+        const forumPost = await ForumPost.findById(forumPostId)
         res.json(forumPost);
     } catch (err) {
         res.status(400).json({ error: err.message });
     }
 };
+
+
