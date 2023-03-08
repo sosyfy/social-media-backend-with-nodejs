@@ -4,6 +4,15 @@ Mock server:
 documentation:
 - [Postman Documentation](https://documenter.getpostman.com/view/20962669/2s93JqSkYP)
 
+## Setup and use collection 
+
+Go to the documentation and import collection from there.
+After import , click on the environments tab and select socials environment. 
+Authorization is set up by default but incase you mess with it, tap on the collection name and set the auth method to bearer token and add the token you get from login api.
+
+
+## Brief summary 
+
 Our social media REST API provides a comprehensive set of tools for users to engage with popular social media platforms. The API includes five main endpoints: auth, user, post, comment, and forum.
 
 With the auth endpoint, users can easily authenticate themselves and gain access to their social media account data. The user endpoint allows users to manage their account information, including profile details and follower counts.
