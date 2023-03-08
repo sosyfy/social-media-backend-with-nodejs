@@ -7,7 +7,7 @@ const router = express.Router()
 router.route('/:postId').get(verifyToken ,controller.getAllPostComments)
 router.route('/find/:commentId').get(verifyToken ,controller.getOneComment)
 // POST
-router.route('/').post(verifyToken,controller.createComment)
+router.route('/:postId').post(verifyToken,controller.createComment)
 //PUT
 router.route('/:commentId').put(verifyToken,controller.updateComment)
 router.route('/toggle-like/:commentId').put(verifyToken,controller.toggleCommentLike)

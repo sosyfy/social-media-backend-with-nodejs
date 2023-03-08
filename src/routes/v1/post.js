@@ -11,7 +11,7 @@ router.route('/find/:id').get(verifyToken, controller.getOnePost)
 router.route('/').post(verifyToken,controller.createPost)
 //PUT
 router.route('/:id').put(verifyToken,controller.updatePost)
-router.route('/toggleLike/:id').put(verifyToken,controller.toggleLikePost)
+router.route('/toggle-like/:id').put(verifyToken,controller.toggleLikePost)
 //DELETE
 router.route('/:id').delete(verifyToken,controller.deletePost)
 

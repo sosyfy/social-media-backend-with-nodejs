@@ -6,15 +6,15 @@ const PostSchema = new mongoose.Schema({
         ref: "User",
         required: true,
     },
+    userInfo: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Auth",
+        required: true,
+    },
     title: {
       type: String,
       required: true,
       min: 4,
-    },
-    desc: {
-        type: String,
-        required: true,
-        min: 8
     },
     photo: {
         type: String,

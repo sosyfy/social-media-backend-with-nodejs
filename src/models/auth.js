@@ -36,6 +36,10 @@ const authSchema = new mongoose.Schema(
         type: Boolean,
         default: false,
       },
+      photo: {
+        type: String,
+        default: ''
+      },
       emailVerificationToken: {
         type: String 
       },

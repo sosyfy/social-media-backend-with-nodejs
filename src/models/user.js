@@ -19,16 +19,6 @@ const UserSchema = new mongoose.Schema(
         default: [],
     },
     location: String,
-    photo: {
-        id: { 
-            type: String,
-        }, 
-        
-        secure_url: { 
-            type: String,
-        }, 
-        
-    },
     experience : [ 
         {
            position : {

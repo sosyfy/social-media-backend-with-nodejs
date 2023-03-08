@@ -1,13 +1,24 @@
-
+const User = require('#models/user')
 const Comment = require('#models/comment')
+
+// CREATE
+exports.createComment = async(req, res) => {
+    try {
+       const user =  await User.findById(req.user.id)
+       const createdComment = await Comment.create({...req.body, user: req.user.id, post: req.params.postId, userInfo: user.userInfo})
+       const comments = await Comment.find({post: createdComment.post}).populate("userInfo")
+       return res.status(201).json(comments)
+    } catch (error) {
+        return res.status(500).json(error.message) 
+    }
+}
 
 // READ
 exports.getAllPostComments =  async(req, res) => {
     try {
         const comments = await Comment
         .find({post: req.params.postId})
-        .populate("user", '-password')
-        .populate("post", '-user')
+        .populate("userInfo")
 
         return res.status(200).json(comments)
     } catch (error) {
@@ -18,18 +29,8 @@ exports.getAllPostComments =  async(req, res) => {
 
 exports.getOneComment =  async(req, res) => {
     try {
-      const comment = await Comment.findById(req.params.commentId).populate("user", '-password') 
+      const comment = await Comment.findById(req.params.commentId).populate("userInfo", '-password') 
       return res.status(200).json(comment)
-    } catch (error) {
-        return res.status(500).json(error.message) 
-    }
-}
-
-// CREATE
-exports.createComment = async(req, res) => {
-    try {
-       const createdComment = await (await Comment.create({...req.body, user: req.user.id})).populate('user', '-password')
-       return res.status(201).json(createdComment)
     } catch (error) {
         return res.status(500).json(error.message) 
     }
@@ -63,11 +64,11 @@ exports.toggleCommentLike = async(req, res) => {
       if(!comment.likes.includes(currentUserId)){
         comment.likes.push(currentUserId)
         await comment.save()
-        return res.status(200).json({msg: "Comment has been successfully liked!"})
+        return res.status(200).json({comment, msg: "Comment has been successfully liked!"})
       } else {
         comment.likes = comment.likes.filter((id) => id !== currentUserId)
         await comment.save()
-        return res.status(200).json({msg: "Comment has been successfully unliiked"})
+        return res.status(200).json({comment ,msg: "Comment has been successfully unliked"})
       }
     } catch (error) {
         return res.status(500).json(error.message)  
