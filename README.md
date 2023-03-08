@@ -1,3 +1,9 @@
+Mock server: 
+- [Mock Postman Server](https://709e80f9-f1d9-484d-8720-173a9314a64e.mock.pstmn.io)
+
+documentation:
+- [Postman Documentation](https://documenter.getpostman.com/view/20962669/2s93JqSkYP)
+
 Our social media REST API provides a comprehensive set of tools for users to engage with popular social media platforms. The API includes five main endpoints: auth, user, post, comment, and forum.
 
 With the auth endpoint, users can easily authenticate themselves and gain access to their social media account data. The user endpoint allows users to manage their account information, including profile details and follower counts.
