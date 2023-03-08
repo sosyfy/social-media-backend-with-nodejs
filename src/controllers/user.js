@@ -63,13 +63,13 @@ exports.getAllUsers = async(req, res) => {
 /* UPDATE */
 exports.addRemoveConnection = async (req, res) => {
     try {
-        const { id, connectionId } = req.params;
+        const { userId, connectionId } = req.body;
 
-        if (id === connectionId) {
+        if (userId === connectionId) {
             throw new Error("You can't follow yourself")
         }
 
-        const user = await User.findById(id).populate('userInfo');
+        const user = await User.findById(userId).populate('userInfo');
         const connection = await User.findById(connectionId).populate('userInfo');
 
         if (user.connections.some(con => con.email == connection.email)) {

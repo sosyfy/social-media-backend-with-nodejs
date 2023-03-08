@@ -1,31 +1,27 @@
+Our social media REST API provides a comprehensive set of tools for users to engage with popular social media platforms. The API includes five main endpoints: auth, user, post, comment, and forum.
 
-A Boilerplate/Generator/Starter template for building RESTful APIs and microservices using modern Javascript, Node.js, Express and MongoDB.
+With the auth endpoint, users can easily authenticate themselves and gain access to their social media account data. The user endpoint allows users to manage their account information, including profile details and follower counts.
 
-This is a highly opinionated and fully featured starter template, if you don't need some feature or dependency, just delete it.
+
+With the post endpoint, users can create and retrieve posts in a variety of formats, including text, photos, and videos. Users can also search for posts based on keywords or hashtags.
+
+
+The comment endpoint enables users to interact with comments on posts, including adding new comments and moderating existing ones. Finally, the forum endpoint provides a platform for users to engage in online discussions on a variety of topics.
+
+
+Overall, our social media REST API provides a user-friendly way for users to engage with their favorite social media platforms, with powerful tools and functionality that enable them to create, share, and connect with others online.
+
 
 ## Requirements
 
 - [Node 18+](https://nodejs.org/en/download/)
 
-## Features
 
-- No transpilers, just vanilla javascript
-- CORS configuration
-- Structured logs with [morgan](https://github.com/expressjs/morgan) .You can change from dev to tiny.
-- API documentation with [OpenAPI v3](https://swagger.io/specification/) and [Swagger UI](https://swagger.io/tools/swagger-ui/) yet to be done fully but a basic setup is done. 
-- MongoDB ORM with [Mongoose](https://mongoosejs.com/) .you can use local mongod or Atlas 
-- Load environment variables from .env files with [dotenv](https://github.com/rolodato/dotenv-safe)
-- Automatic error handling for express asynchronous routes with [express-async-errors](https://github.com/davidbanham/express-async-errors)
-- Auto reload with nodemon
-- Advanced Auth with cookies, email verification etc 
-- Integration with mailing service am using SendGrid but you can use any other of your preference 
-- configured package.json for simpler import routes. this can also be edited to your preference.
-- Well documented auth to understand what is happening 
 
 ## Getting Started
 
 # Locally
-1. Download  or clone template 
+1. Download  or clone project 
 2. open the project and in the terminal run 
 ```bash
  npm install 
@@ -37,9 +33,6 @@ This is a highly opinionated and fully featured starter template, if you don't n
  npm run dev 
 ```
 
-# Github 
-
-Click use this template and follow same steps as in locall 
 
 ## Scripts
 ```bash

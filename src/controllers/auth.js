@@ -16,11 +16,10 @@ exports.register = async (req, res) => {
     if (isExisting) {
       throw new Error("Already such an email registered.")
     }
-
+  
     const newAuth = await Auth.create({ ...req.body })
-    // console.log(newAuth);
-    const newUser = await User.create({ userInfo: newAuth._id, email: newAuth.email })
-    console.log(newUser);
+    const newUser = await (await User.create({ userInfo: newAuth._id, email: newAuth.email })).populate("userInfo")
+   
     // & sending a token after user creation
     const token = createAccessToken(newUser)
     const options = {
@@ -54,14 +53,14 @@ exports.logInWithEmailAndPassword = async function (req, res, next) {
     const user = await Auth.findOne({ email }).select("+password")
 
     if (!user) {
-      return next(new Errors.UserNotFoundError())
+      return res.status(500).json("Password or email may be incorrect")
     }
 
     //& validating the password if they match with one from Db 
     const isPasswordCorrect = await user.isValidatedPassword(password)
 
     if (!isPasswordCorrect) {
-      return next(new Errors.IncorrectEmailOrPasswordError())
+      return res.status(500).json("Password or email may be incorrect")
     }
 
     const currentUser = await User.findOne({ userData: user._id});
@@ -82,6 +81,7 @@ exports.logInWithEmailAndPassword = async function (req, res, next) {
 
 
   } catch (error) {
+    return res.status(500).json(error.message)
     return next(new Errors.ApiError())
   }
 
