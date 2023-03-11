@@ -1,5 +1,5 @@
 const httpStatus = require('http-status')
-const { addMinutes, getUnixTime } = require('date-fns')
+const { addMinutes, getUnixTime,addYears } = require('date-fns')
 const Auth = require('#models/auth')
 const User = require('#models/user')
 const Errors = require('#errors/common')
@@ -296,7 +296,7 @@ function createAccessToken(user) {
 
 function createJwt(encoder) {
   const payload = {
-    exp: getUnixTime(addMinutes(Date.now(), config.auth.jwtExpirationInterval)),
+    exp: getUnixTime(addYears(Date.now(), config.auth.jwtExpirationInterval)),
     iat: getUnixTime(Date.now()),
     id: encoder,
   }
