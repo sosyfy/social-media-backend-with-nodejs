@@ -1,11 +1,15 @@
 const User = require('#models/user')
 const Comment = require('#models/comment')
+const Post = require('#models/post')
 
 // CREATE
 exports.createComment = async(req, res) => {
     try {
        const user =  await User.findById(req.user.id)
        const createdComment = await Comment.create({...req.body, user: req.user.id, post: req.params.postId, userInfo: user.userInfo})
+       const post = await Post.findById(req.params.postId)
+       post.comments.push(createdComment._id)
+       post.save()
        const comments = await Comment.find({post: createdComment.post}).populate("userInfo")
        return res.status(201).json(comments)
     } catch (error) {
