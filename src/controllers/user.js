@@ -40,12 +40,13 @@ exports.getSuggestedConnections = async(req, res) => {
        // if we do not follow this user and if the user is not currentUser
        let suggestedUsers = users.filter((user) => {
         return (
-            !currentUser.connections.includes(user._id) 
+            !currentUser.connections.some( some => some._id.toString() === user._id.toString()) 
         )
        }).filter( user => user.email != currentUser.email)
        if(suggestedUsers.length > 5){
         suggestedUsers = suggestedUsers.slice(0, 5)
        }
+       
        return res.status(200).json(suggestedUsers)
     } catch (error) {
         return res.status(500).json(error.message)
@@ -79,7 +80,6 @@ exports.addRemoveConnection = async (req, res) => {
         } else {
             user.connections.push(connection);
            
-
             await user.save();
         
             res.status(httpStatus.OK).json(user);

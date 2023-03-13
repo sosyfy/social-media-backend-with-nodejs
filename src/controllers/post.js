@@ -32,11 +32,14 @@ exports.getUserPosts = async (req, res) => {
 exports.getTimelinePosts = async (req, res) => {
     try {
         const currentUser = await User.findById(req.user.id)
-        const posts = await Post.find().populate("userInfo")
-        const currentUserPosts = await Post.find({ user: req.user.id }).populate("userInfo")
+        const posts = await Post.find().populate("userInfo").sort({ createdAt: -1 })
+        const currentUserPosts = await Post.find({ user: req.user.id }).populate("userInfo").sort({ createdAt: -1 })
         const friendsPosts = posts.filter((post) => {
-            return currentUser.connections.includes(post.user)
+
+            return currentUser.connections.some(some => some._id.toString() === post.user.toString())
         })
+        
+
 
         let timelinePosts = currentUserPosts.concat(...friendsPosts)
 
@@ -104,10 +107,12 @@ exports.toggleLikePost =  async(req, res) => {
 
         if(post.likes.includes(currentUserId)){
            post.likes = post.likes.filter((id) => id !== currentUserId)
+           post.liked = false 
            await post.save()
            return res.status(200).json({post: post , msg: "Successfully unliked the post"})
         } else {
            post.likes.push(currentUserId)
+           post.liked = true 
            await post.save()
            return res.status(200).json({ post: post ,msg: "Successfully liked the post"})
         } 

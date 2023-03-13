@@ -3,7 +3,6 @@ const express = require("express")
 const cors = require( 'cors')
 const morgan = require( 'morgan')
 const cookieParser = require( "cookie-parser")
-const fileUpload = require( "express-fileupload")
 const xss = require( 'xss-clean')
 const hpp = require( 'hpp')
 const bodyParser = require( 'body-parser')
@@ -17,15 +16,21 @@ const app = express()
 const swaggerFile = require('../../swagger-output.json')
  
 const v1routes = require( '#routes/v1/v1')
+const uploadController = require('../controllers/upload')
 
 
-
-
-//& Allow Cross-Origin requests
-app.use(cors());
 
 //& Set security HTTP headers
-app.use(helmet());
+// app.use(helmet({
+//     crossOriginEmbedderPolicy: false,
+//   }));
+ app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
+//& Allow Cross-Origin requests
+app.use(cors({
+    "origin": "*",
+
+}))
+
 
 //& Limit request from the same API 
 const limiter = rateLimit({
@@ -49,8 +54,7 @@ app.use(express.urlencoded({extended: true }))
 //& coookies and file upload 
 
 app.use(cookieParser())
-app.use(fileUpload())
-
+app.use('/images', express.static('public/images'))
 
 //& morgan middleware  to display logs on console of visited routes 
 app.use(morgan("dev"))
@@ -63,6 +67,7 @@ app.use('/doc', swaggerUi.serve, swaggerUi.setup(swaggerFile))
 
 //& routes
 app.use('/v1', v1routes)
+app.use('/v1/upload', uploadController)
 
 
 

@@ -63,7 +63,7 @@ exports.logInWithEmailAndPassword = async function (req, res, next) {
       return res.status(500).json("Password or email may be incorrect")
     }
 
-    const currentUser = await User.findOne({ userData: user._id});
+    const currentUser = await User.findOne({ userInfo: user._id}).populate('userInfo');
    
     //& sending a token after validation  
     const token = createAccessToken(currentUser)
@@ -76,7 +76,7 @@ exports.logInWithEmailAndPassword = async function (req, res, next) {
       status: true,
       message: "success",
       token: token,
-      user: user
+      user: currentUser
     })
 
 
