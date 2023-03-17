@@ -9,8 +9,7 @@ exports.createForumPost = async (req, res) => {
         const user = await User.findById(req.user.id);
         const userInfo = user.userInfo;
         const forumPost = await ForumPost.create({ title, userInfo, creator, description, category });
-        const forumPosts = await ForumPost.find({ category }).populate("userInfo")
-            .sort({ createdAt: 1 })
+        const forumPosts = await ForumPost.find({ category }).sort({ createdAt: -1 }).populate("userInfo")
         res.status(201).json(forumPosts);
 
     } catch (err) {
@@ -65,7 +64,7 @@ exports.getForumPostsByCategory = async (req, res) => {
     try {
         const forumPosts = await ForumPost.find({ category })
             .populate("userInfo")
-            .sort({ createdAt: 1 })
+            .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
 
@@ -107,7 +106,7 @@ exports.getFilteredForumPosts = async (req, res) => {
             break;
 
         case 'latest':
-            sort = { createdAt: 1 };
+            sort = { createdAt: -1 };
             const latestForumPosts = await ForumPost.find({ category })
                 .populate("userInfo")
                 .sort(sort)

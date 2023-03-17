@@ -1,6 +1,7 @@
 const User = require('#models/user')
 const Comment = require('#models/comment')
 const Post = require('#models/post')
+const ForumPost = require('#models/forum')
 
 // CREATE
 exports.createComment = async(req, res) => {
@@ -8,9 +9,25 @@ exports.createComment = async(req, res) => {
        const user =  await User.findById(req.user.id)
        const createdComment = await Comment.create({...req.body, user: req.user.id, post: req.params.postId, userInfo: user.userInfo})
        const post = await Post.findById(req.params.postId)
+       console.log(post);
        post.comments.push(createdComment._id)
        post.save()
        const comments = await Comment.find({post: createdComment.post}).populate("userInfo")
+       return res.status(201).json(comments)
+    } catch (error) {
+        return res.status(500).json(error.message) 
+    }
+}
+
+exports.createForumComment = async(req, res) => {
+    try {
+       const user =  await User.findById(req.user.id)
+       const createdComment = await Comment.create({...req.body, user: req.user.id, post: req.params.postId, userInfo: user.userInfo})
+       const post = await ForumPost.findById(req.params.postId)
+       console.log(post);
+       post.comments.push(createdComment._id)
+       post.save()
+       const comments = await Comment.find({post: createdComment.post}).sort({ createdAt: -1 }).populate("userInfo")
        return res.status(201).json(comments)
     } catch (error) {
         return res.status(500).json(error.message) 
@@ -22,6 +39,7 @@ exports.getAllPostComments =  async(req, res) => {
     try {
         const comments = await Comment
         .find({post: req.params.postId})
+        .sort({ createdAt: -1 })
         .populate("userInfo")
 
         return res.status(200).json(comments)

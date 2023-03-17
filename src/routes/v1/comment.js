@@ -8,6 +8,7 @@ router.route('/:postId').get(verifyToken ,controller.getAllPostComments)
 router.route('/find/:commentId').get(verifyToken ,controller.getOneComment)
 // POST
 router.route('/:postId').post(verifyToken,controller.createComment)
+router.route('/forum/:postId').post(verifyToken,controller.createForumComment)
 //PUT
 router.route('/:commentId').put(verifyToken,controller.updateComment)
 router.route('/toggle-like/:commentId').put(verifyToken,controller.toggleCommentLike)

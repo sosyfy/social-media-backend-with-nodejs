@@ -55,7 +55,12 @@ exports.getSuggestedConnections = async(req, res) => {
 
 exports.getAllUsers = async(req, res) => {
     try {
-        const users = await User.find().populate('userInfo');
+        const users = await User.find({ _id: { $ne: req.user.id } }).populate('userInfo').sort({ createdAt: -1 })
+        
+        if (users.length > 40) {
+            users = users.slice(0, 40)
+        }
+
         return res.status(200).json(users)
     } catch (error) {
         return res.status(500).json(error) 
@@ -72,14 +77,13 @@ exports.addRemoveConnection = async (req, res) => {
 
         const user = await User.findById(userId).populate('userInfo');
         const connection = await User.findById(connectionId).populate('userInfo');
-
+      
         if (user.connections.some(con => con.email == connection.email)) {
             user.connections = user.connections.filter((con) => con._id.toString() !== connectionId);
             await user.save();
             res.status(httpStatus.OK).json(user);
         } else {
             user.connections.push(connection);
-           
             await user.save();
         
             res.status(httpStatus.OK).json(user);
