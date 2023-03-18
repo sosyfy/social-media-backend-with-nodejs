@@ -1,5 +1,5 @@
 const httpStatus = require('http-status')
-const { addMinutes, getUnixTime,addYears } = require('date-fns')
+const { addMinutes, getUnixTime, addYears } = require('date-fns')
 const Auth = require('#models/auth')
 const User = require('#models/user')
 const Errors = require('#errors/common')
@@ -7,7 +7,7 @@ const config = require('#config')
 const sendMail = require('#lib/email')
 const jwt = require('jwt-simple')
 const crypto = require("crypto")
-
+const cloudinary = require("cloudinary").v2
 
 
 exports.register = async (req, res) => {
@@ -16,26 +16,32 @@ exports.register = async (req, res) => {
     if (isExisting) {
       throw new Error("Already such an email registered.")
     }
-  
-    const newAuth = await Auth.create({ ...req.body })
-    const newUser = await (await User.create({ userInfo: newAuth._id, email: newAuth.email })).populate("userInfo")
-   
-    // & sending a token after user creation
-    const token = createAccessToken(newUser)
-    const options = {
-      expires: token.expiresIn,
-      httpOnly: true
-    }
-    
 
-    res.status(httpStatus.CREATED).cookie('token', token.token, options).json({
+    // Configuration 
+    cloudinary.config({
+      cloud_name: config.cloudinary.cloud_name,
+      api_key: config.cloudinary.key,
+      api_secret: config.cloudinary.secret
+    });
+
+    let file = req.files.media
+    const result = await cloudinary.uploader.upload(file.tempFilePath, {
+      folder: "users"
+    })
+
+
+    const newAuth = await Auth.create({ ...req.body, photo: result.secure_url })
+    const newUser = await (await User.create({ userInfo: newAuth._id, email: newAuth.email })).populate("userInfo")
+
+
+    res.status(httpStatus.CREATED).json({
       status: true,
       message: "success",
-      token: token,
       user: newUser
     })
 
   } catch (error) {
+    console.log(error.message);
     return res.status(500).json(error.message)
   }
 }
@@ -63,8 +69,8 @@ exports.logInWithEmailAndPassword = async function (req, res, next) {
       return res.status(500).json("Password or email may be incorrect")
     }
 
-    const currentUser = await User.findOne({ userInfo: user._id}).populate('userInfo');
-   
+    const currentUser = await User.findOne({ userInfo: user._id }).populate('userInfo');
+
     //& sending a token after validation  
     const token = createAccessToken(currentUser)
     const options = {
@@ -82,7 +88,6 @@ exports.logInWithEmailAndPassword = async function (req, res, next) {
 
   } catch (error) {
     return res.status(500).json(error.message)
-    return next(new Errors.ApiError())
   }
 
 }

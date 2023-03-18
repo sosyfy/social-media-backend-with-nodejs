@@ -1,19 +1,47 @@
 const Post = require('#models/post')
 const User = require('#models/user')
 const mongoose = require('mongoose')
-
+const cloudinary = require("cloudinary").v2
+const config = require('#config')
 
 
 // CREATE
 exports.createPost = async (req, res) => {
+    console.log(req.body, req.files);
     try {
-        const userId = mongoose.Types.ObjectId(req.user.id)
-        const user =  await User.findById(userId)
-        await Post.create({ ...req.body, user: userId, userInfo: user.userInfo })
-        const posts = await Post.find().populate("userInfo")
+
+        // Configuration 
+        cloudinary.config({
+            cloud_name: config.cloudinary.cloud_name,
+            api_key: config.cloudinary.key,
+            api_secret: config.cloudinary.secret
+        });
+
+        let result;
+
+        if (req.files) {
+            let file = req.files.media;
+            result = await cloudinary.uploader.upload(file.tempFilePath, {
+                folder: "posts"
+            })
+            const userId = mongoose.Types.ObjectId(req.user.id)
+            const user = await User.findById(userId)
+            await Post.create({ title: req.body.title, user: userId, userInfo: user.userInfo, photo: result.secure_url })
+
+        } else {
+            const userId = mongoose.Types.ObjectId(req.user.id)
+            const user = await User.findById(userId)
+            await Post.create({ title: req.body.title, user: userId, userInfo: user.userInfo })
+        }
+
+
+
         
+        const posts = await Post.find().populate("userInfo")
+
         return res.status(201).json(posts)
     } catch (error) {
+        console.log(error.message);
         return res.status(500).json(error.message)
     }
 }
@@ -38,7 +66,7 @@ exports.getTimelinePosts = async (req, res) => {
 
             return currentUser.connections.some(some => some._id.toString() === post.user.toString())
         })
-        
+
 
 
         let timelinePosts = currentUserPosts.concat(...friendsPosts)
@@ -53,7 +81,7 @@ exports.getTimelinePosts = async (req, res) => {
     }
 }
 
-exports.getOnePost =  async (req, res) => {
+exports.getOnePost = async (req, res) => {
     try {
         let post = await Post.findById(req.params.id).populate("userInfo")
         if (!post) {
@@ -83,7 +111,7 @@ exports.updatePost = async (req, res) => {
     }
 }
 
-exports.deletePost =  async (req, res) => {
+exports.deletePost = async (req, res) => {
     try {
         const post = await Post.findById(req.params.id)
         if (!post) {
@@ -100,22 +128,22 @@ exports.deletePost =  async (req, res) => {
 }
 
 
-exports.toggleLikePost =  async(req, res) => {
+exports.toggleLikePost = async (req, res) => {
     try {
         const currentUserId = req.user.id
         const post = await Post.findById(req.params.id)
 
-        if(post.likes.includes(currentUserId)){
-           post.likes = post.likes.filter((id) => id !== currentUserId)
-           post.liked = false 
-           await post.save()
-           return res.status(200).json({post: post , msg: "Successfully unliked the post"})
+        if (post.likes.includes(currentUserId)) {
+            post.likes = post.likes.filter((id) => id !== currentUserId)
+            post.liked = false
+            await post.save()
+            return res.status(200).json({ post: post, msg: "Successfully unliked the post" })
         } else {
-           post.likes.push(currentUserId)
-           post.liked = true 
-           await post.save()
-           return res.status(200).json({ post: post ,msg: "Successfully liked the post"})
-        } 
+            post.likes.push(currentUserId)
+            post.liked = true
+            await post.save()
+            return res.status(200).json({ post: post, msg: "Successfully liked the post" })
+        }
 
     } catch (error) {
         return res.status(500).json(error.message)

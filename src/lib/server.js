@@ -9,7 +9,7 @@ const bodyParser = require( 'body-parser')
 const rateLimit = require( 'express-rate-limit')
 const helmet = require( 'helmet')
 const swaggerUi = require( 'swagger-ui-express')
-
+const fileUpload = require("express-fileupload")
 
 const app = express()
 
@@ -21,17 +21,17 @@ const uploadController = require('../controllers/upload')
 
 
 //& Set security HTTP headers
-// app.use(helmet({
-//     crossOriginEmbedderPolicy: false,
-//   }));
+app.use(helmet({
+    crossOriginEmbedderPolicy: false,
+  }));
  app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 //& Allow Cross-Origin requests
 app.use(cors({
     "origin": "*",
-
 }))
 
 
+    
 //& Limit request from the same API 
 const limiter = rateLimit({
     max: 150,
@@ -49,12 +49,17 @@ app.use(hpp());
 //& reqular middlewares 
 app.use(express.json());
 app.use(bodyParser.json());
-app.use(express.urlencoded({extended: true }))
+app.use(express.urlencoded({ extended: true }))
 
 //& coookies and file upload 
-
 app.use(cookieParser())
-app.use('/images', express.static('public/images'))
+
+app.use(fileUpload({
+    useTempFiles : true,
+    tempFileDir : '/tmp/'
+}));
+
+// app.use('/images', express.static('public/images'))
 
 //& morgan middleware  to display logs on console of visited routes 
 app.use(morgan("dev"))

@@ -26,4 +26,10 @@ module.exports = Object.freeze({
       username: process.env.EMAIL_USERNAME,
       password: process.env.EMAIL_PASSWORD,
     },
+    cloudinary: {
+      key: process.env.CLOUDINARY_KEY,
+      secret: process.env.CLOUDINARY_SECRET,
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      url: process.env.CLOUDINARY_URL 
+    }
   })
