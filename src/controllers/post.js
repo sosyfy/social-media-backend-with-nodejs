@@ -59,26 +59,39 @@ exports.getUserPosts = async (req, res) => {
 
 exports.getTimelinePosts = async (req, res) => {
     try {
-        const currentUser = await User.findById(req.user.id)
-        const posts = await Post.find().populate("userInfo").sort({ createdAt: -1 })
-        const currentUserPosts = await Post.find({ user: req.user.id }).populate("userInfo").sort({ createdAt: -1 })
-        const friendsPosts = posts.filter((post) => {
-
-            return currentUser.connections.some(some => some._id.toString() === post.user.toString())
-        })
-
-
-
-        let timelinePosts = currentUserPosts.concat(...friendsPosts)
-
+        const currentUser = await User.findById(req.user.id);
+        const posts = await Post.find()
+          .populate("userInfo")
+          .sort({ createdAt: -1 });
+        const currentUserPosts = await Post.find({ user: req.user.id })
+          .populate("userInfo")
+          .sort({ createdAt: -1 });
+        const friendsPosts = posts.filter((post) =>
+          currentUser.connections.some(
+            (some) => some._id.toString() === post.user.toString()
+          )
+        );
+      
+        let timelinePosts = [...currentUserPosts, ...friendsPosts].sort(
+          (a, b) => b.createdAt - a.createdAt
+        );
+      
         if (timelinePosts.length > 40) {
-            timelinePosts = timelinePosts.slice(0, 40)
+          timelinePosts = timelinePosts.slice(0, 40);
+        } else if (timelinePosts.length < 10) {
+          let otherPosts = posts
+            .filter((post) => !timelinePosts.includes(post))
+            .slice(0, 30);
+          timelinePosts = [...otherPosts, ...timelinePosts].sort(
+            (a, b) => b.createdAt - a.createdAt
+          );
         }
-
-        return res.status(200).json(timelinePosts)
-    } catch (error) {
-        return res.status(500).json(error.message)
-    }
+      
+        return res.status(200).json(timelinePosts);
+      } catch (error) {
+        return res.status(500).json(error.message);
+      }
+      
 }
 
 exports.getOnePost = async (req, res) => {
