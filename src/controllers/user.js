@@ -1,14 +1,33 @@
 const User = require('#models/user')
 const Auth = require('#models/auth')
-
-const httpStatus = require('http-status')
+const Post = require('#models/post')
+const httpStatus = require('http-status');
 
 /* READ */
 exports.getUser = async (req, res) => {
     try {
+        // find one user 
         const { id } = req.params;
         const user = await User.findById(id).populate('userInfo');
-        res.status(httpStatus.OK).json(user);
+
+        // Find all connections associated with the user
+        const connections = await Promise.all(
+            user.connections.map((con) => User.findById(con._id).populate('userInfo'))
+        );
+        
+        const posts = await Post.find({user: id }).populate("userInfo")
+
+        let connectionNo = connections.length
+        let postNo = posts.length
+
+        
+        res.status(httpStatus.OK).json({
+            posts,
+            postNo,
+            connectionNo,
+            connections,
+            user
+        });
     } catch (err) {
         res.status(httpStatus.NOT_FOUND).json({ message: err.message });
     }
