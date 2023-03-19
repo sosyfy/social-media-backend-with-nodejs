@@ -76,6 +76,16 @@ exports.getTimelinePosts = async (req, res) => {
           (a, b) => b.createdAt - a.createdAt
         );
       
+        // Use a Set to keep track of post IDs
+        const postIds = new Set();
+        timelinePosts = timelinePosts.filter((post) => {
+          if (!postIds.has(post._id.toString())) {
+            postIds.add(post._id.toString());
+            return true;
+          }
+          return false;
+        });
+      
         if (timelinePosts.length > 40) {
           timelinePosts = timelinePosts.slice(0, 40);
         } else if (timelinePosts.length < 10) {
@@ -91,6 +101,7 @@ exports.getTimelinePosts = async (req, res) => {
       } catch (error) {
         return res.status(500).json(error.message);
       }
+      
       
 }
 

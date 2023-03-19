@@ -35,39 +35,78 @@ exports.getUserConnections = async (req, res) => {
 
 exports.getSuggestedConnections = async(req, res) => {
     try {
-       const currentUser = await User.findById(req.user.id).populate('userInfo');
-       const users = await User.find().populate('userInfo');
-       // if we do not follow this user and if the user is not currentUser
-       let suggestedUsers = users.filter((user) => {
-        return (
-            !currentUser.connections.some( some => some._id.toString() === user._id.toString()) 
-        )
-       }).filter( user => user.email != currentUser.email)
-       if(suggestedUsers.length > 5){
-        suggestedUsers = suggestedUsers.slice(0, 5)
-       }
-        
-
-  
-       return res.status(200).json(suggestedUsers)
-    } catch (error) {
-        return res.status(500).json(error.message)
-    }
+        const currentUser = await User.findById(req.user.id).populate('userInfo');
+        const users = await User.find().populate('userInfo');
+      
+        // Get a list of all the IDs of users that the current user is connected with
+        const connectedUserIds = currentUser.connections.map((connection) =>
+          connection._id.toString()
+        );
+      
+        // Filter out users that the current user is already connected with or is the current user
+        let suggestedUsers = users.filter(
+          (user) =>
+            !connectedUserIds.includes(user._id.toString()) &&
+            user.email !== currentUser.email
+        );
+      
+        // Sort suggested users by the number of connections they have in common with the current user
+        suggestedUsers.sort((a, b) => {
+          const aConnections = a.connections.filter((connection) =>
+            connectedUserIds.includes(connection._id.toString())
+          );
+          const bConnections = b.connections.filter((connection) =>
+            connectedUserIds.includes(connection._id.toString())
+          );
+          return bConnections.length - aConnections.length;
+        });
+      
+        // Limit the number of suggested users to 5
+        suggestedUsers = suggestedUsers.slice(0, 5);
+      
+        return res.status(200).json(suggestedUsers);
+      } catch (error) {
+        return res.status(500).json(error.message);
+      }
+      
 }
 
 exports.getAllUsers = async(req, res) => {
     try {
-        const users = await User.find({ _id: { $ne: req.user.id } }).populate('userInfo').sort({ createdAt: -1 })
-        
-        if (users.length > 40) {
-            users = users.slice(0, 40)
-        }
+        const currentUser = await User.findById(req.user.id).populate('userInfo');
+        const users = await User.find().populate('userInfo');
       
-
-        return res.status(200).json(users)
-    } catch (error) {
-        return res.status(500).json(error) 
-    }
+        // Get a list of all the IDs of users that the current user is connected with
+        const connectedUserIds = currentUser.connections.map((connection) =>
+          connection._id.toString()
+        );
+      
+        // Filter out users that the current user is already connected with or is the current user
+        let suggestedUsers = users.filter(
+          (user) =>
+            !connectedUserIds.includes(user._id.toString()) &&
+            user.email !== currentUser.email
+        );
+      
+        // Sort suggested users by the number of connections they have in common with the current user
+        suggestedUsers.sort((a, b) => {
+          const aConnections = a.connections.filter((connection) =>
+            connectedUserIds.includes(connection._id.toString())
+          );
+          const bConnections = b.connections.filter((connection) =>
+            connectedUserIds.includes(connection._id.toString())
+          );
+          return bConnections.length - aConnections.length;
+        });
+      
+        // Limit the number of suggested users to 5
+        suggestedUsers = suggestedUsers.slice(0, 30);
+      
+        return res.status(200).json(suggestedUsers);
+      } catch (error) {
+        return res.status(500).json(error.message);
+      }
+      
 }
 /* UPDATE */
 exports.addRemoveConnection = async (req, res) => {
