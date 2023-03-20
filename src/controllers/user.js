@@ -14,6 +14,7 @@ exports.getUser = async (req, res) => {
         const connections = await Promise.all(
             user.connections.map((con) => User.findById(con._id).populate('userInfo'))
         );
+
         
         const posts = await Post.find({user: id }).populate("userInfo")
 
