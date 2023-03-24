@@ -30,16 +30,25 @@ const ForumPostSchema = new mongoose.Schema({
     }],
     category: {
         type: String,
-        enum: ['job', 'resources', 'resume', 'general'],
+        enum: ['job', 'resources', 'general'],
         required: true,
     },
-    views: {
-        type: Number,
-        default: 0,
-    },
-    visitedBy: [{
-        type: String,
-    }],
+    viewCount: {
+      type: Number,
+      default: 0,
+    }  
+  
 }, { timestamps: true });
+
+// Increment the view count for the given forum post ID
+ForumPostSchema.statics.incrementViewCount = async function(postId) {
+    const post = await this.findById(postId);
+    if (!post) {
+      throw new Error('Post not found');
+    }
+  
+    post.viewCount++;
+    await post.save();
+  };
 
 module.exports = mongoose.model('ForumPost', ForumPostSchema);
