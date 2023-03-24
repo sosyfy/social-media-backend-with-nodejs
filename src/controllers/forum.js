@@ -125,11 +125,62 @@ exports.getForumPostById = async (req, res) => {
     const { forumPostId } = req.params;
 
     try {
+        const ipAddress = req.ip;
+
         const forumPost = await ForumPost.findById(forumPostId).populate("userInfo")
+
+        if (forumPost.visitedBy.includes(ipAddress)) {
+            await ForumPost.findByIdAndUpdate(forumPostId, { $inc: { views: 1 }, $push: { visitedBy: ipAddress } });
+        }
+
         res.json(forumPost);
     } catch (err) {
         res.status(400).json({ error: err.message });
     }
 };
 
+exports.getAllForumPosts = async ( req , res )=>{
+    // GET all forum posts with optional filters and search
+
+    try {
+      const { category, sortBy, searchTerm } = req.query;
+
+      let filter = {};
+
+      if (category) {
+        filter.category = category;
+      }
+   
+      let sortOption = { createdAt: -1 };
+      if (sortBy === 'mostLiked') {
+        sortOption = { likes: -1 };
+      } else if (sortBy === 'mostViewed') {
+        sortOption = { viewCount: -1 };
+      } else if (sortBy === 'newPosts') {
+        sortOption = { createdAt: -1 };
+      }
+  
+      let searchFilter = {};
+      if (searchTerm) {
+        searchFilter = {
+          $or: [
+            { title: { $regex: searchTerm, $options: 'i' } },
+            { description: { $regex: searchTerm, $options: 'i' } },
+          ],
+        };
+      }
+  
+      const forumPosts = await ForumPost.find({ ...filter, ...searchFilter })
+        .populate({
+          path: 'userInfo',
+        })
+        .sort(sortOption);
+  
+      res.status(200).json(forumPosts);
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).send('Server Error');
+    }
+ 
+}
 
