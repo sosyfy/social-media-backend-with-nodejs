@@ -140,72 +140,72 @@ exports.getForumPostById = async (req, res) => {
     }
 };
 
-exports.getAllForumPosts = async ( req , res )=>{
+exports.getAllForumPosts = async (req, res) => {
     // GET all forum posts with optional filters and search
     const { category, sortBy, searchTerm } = req.query;
-    if (category && !sortBy ){
+    if (category && !sortBy && !searchTerm ) {
         try {
-            let recommendedPosts =  await getWeightedRecommendations(req.user.id , category);
+            const recommendedPosts = await getWeightedRecommendations(req.user.id, category);
 
-            if (recommendedPosts.length < 1 ){
+            if (recommendedPosts.length < 5) {
 
-             recommendedPosts = await ForumPost.find({ category })
-                .populate({
-                  path: 'userInfo',
-                })
-                .sort({ viewCount: -1 });
+                const mostViewedPosts = await ForumPost.find({ category })
+                    .populate({
+                        path: 'userInfo',
+                    })
+                    .sort({ viewCount: -1 });
+                res.status(200).json(mostViewedPosts);
+
             }
-           
-
 
             res.status(200).json(recommendedPosts);
 
         } catch (error) {
-            res.status(400).json({ error: error.message }); 
+            res.status(400).json({ error: error.message });
         }
-    }else {      
+    } else {
         try {
 
             let filter = {};
-      
+
             if (category) {
-              filter.category = category;
+                filter.category = category;
             }
-         
+
             let sortOption = { createdAt: -1 };
             if (sortBy === 'mostLiked') {
-              sortOption = { likes: -1 };
+                sortOption = { likes: -1 };
             } else if (sortBy === 'mostViewed') {
-              sortOption = { viewCount: -1 };
+                sortOption = { viewCount: -1 };
             } else if (sortBy === 'newPosts') {
-              sortOption = { createdAt: -1 };
+                sortOption = { createdAt: -1 };
             }
-        
+
             let searchFilter = {};
             if (searchTerm) {
-              searchFilter = {
-                $or: [
-                  { title: { $regex: searchTerm, $options: 'i' } },
-                  { description: { $regex: searchTerm, $options: 'i' } },
-                ],
-              };
+                searchFilter = {
+                    $or: [
+                        { title: { $regex: searchTerm, $options: 'i' } },
+                        { description: { $regex: searchTerm, $options: 'i' } },
+                    ],
+                };
             }
-        
+
             const forumPosts = await ForumPost.find({ ...filter, ...searchFilter })
-              .populate({
-                path: 'userInfo',
-              })
-              .sort(sortOption);
-        
+                .populate({
+                    path: 'userInfo',
+                })
+                .sort(sortOption);
+
             res.status(200).json(forumPosts);
-          } catch (error) {
+        } catch (error) {
             console.error(error.message);
             res.status(500).send(error.message);
-          }
+        }
 
     }
 
-   
- 
+
+
 }
 
