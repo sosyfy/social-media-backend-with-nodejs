@@ -2,6 +2,7 @@ const User = require('#models/user')
 const Comment = require('#models/comment')
 const Post = require('#models/post')
 const ForumPost = require('#models/forum')
+const UserActivity = require('../models/userActivity')
 
 // CREATE
 exports.createComment = async(req, res) => {
@@ -13,6 +14,12 @@ exports.createComment = async(req, res) => {
        post.comments.push(createdComment._id)
        post.save()
        const comments = await Comment.find({post: createdComment.post}).populate("userInfo")
+       await UserActivity.create({
+        user_id: req.user.id,
+        post_id: post._id,
+        action: 'comment',
+        timestamp: new Date()
+      })
        return res.status(201).json(comments)
     } catch (error) {
         return res.status(500).json(error.message) 
@@ -28,6 +35,7 @@ exports.createForumComment = async(req, res) => {
        post.comments.push(createdComment._id)
        post.save()
        const comments = await Comment.find({post: createdComment.post}).sort({ createdAt: -1 }).populate("userInfo")
+
        return res.status(201).json(comments)
     } catch (error) {
         return res.status(500).json(error.message) 

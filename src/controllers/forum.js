@@ -44,9 +44,21 @@ exports.likeForumPost = async (req, res) => {
         }
         let updatedForumPost;
         const alreadyLiked = forumPost.likes.includes(userId);
+
         if (alreadyLiked) {
+            await UserActivity.findByIdAndUpdate(
+                { user_id: req.user.id},
+                { $pull: {  user_id: req.user.id } }, 
+            )
+
             updatedForumPost = await ForumPost.findByIdAndUpdate(forumPostId, { $pull: { likes: userId } }, { new: true });
         } else {
+            await UserActivity.create({
+                user_id: req.user.id,
+                post_id: post._id,
+                action: 'comment',
+                timestamp: new Date()
+            })
             updatedForumPost = await ForumPost.findByIdAndUpdate(forumPostId, { $push: { likes: userId } }, { new: true });
         }
 
