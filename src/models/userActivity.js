@@ -12,9 +12,9 @@ const userActivitySchema = new mongoose.Schema({
     ref: "ForumPost",
     required: true,
   },
-  interaction_type: {
+  action: {
     type: String,
-    enum: ["like", "comment", "share"],
+    enum: ["like", "comment", "recommend"],
     required: true,
   },
   timestamp: { type: Date, default: Date.now },

@@ -14,7 +14,7 @@ exports.createComment = async(req, res) => {
        post.comments.push(createdComment._id)
        post.save()
        const comments = await Comment.find({post: createdComment.post}).populate("userInfo")
-       await UserActivity.create({
+       const usersActivity = await UserActivity.create({
         user_id: req.user.id,
         post_id: post._id,
         action: 'comment',

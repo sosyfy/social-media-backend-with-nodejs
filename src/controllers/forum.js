@@ -1,6 +1,7 @@
 const ForumPost = require('#models/forum')
 const User = require('#models/user');
 const getWeightedRecommendations = require('../lib/forum-post-recommendations');
+const UserActivity = require('../models/userActivity');
 // Create forum post 
 
 exports.createForumPost = async (req, res) => {
@@ -46,17 +47,15 @@ exports.likeForumPost = async (req, res) => {
         const alreadyLiked = forumPost.likes.includes(userId);
 
         if (alreadyLiked) {
-            await UserActivity.findByIdAndUpdate(
-                { user_id: req.user.id},
-                { $pull: {  user_id: req.user.id } }, 
+            await UserActivity.findOneAndDelete(
+                { user_id: req.user.id}
             )
-
             updatedForumPost = await ForumPost.findByIdAndUpdate(forumPostId, { $pull: { likes: userId } }, { new: true });
         } else {
-            await UserActivity.create({
+            const usersActivity = await UserActivity.create({
                 user_id: req.user.id,
-                post_id: post._id,
-                action: 'comment',
+                post_id: forumPost._id,
+                action: 'like',
                 timestamp: new Date()
             })
             updatedForumPost = await ForumPost.findByIdAndUpdate(forumPostId, { $push: { likes: userId } }, { new: true });
@@ -142,7 +141,7 @@ exports.getForumPostById = async (req, res) => {
 
         const forumPost = await ForumPost.findById(forumPostId).populate("userInfo")
 
-        if (forumPost.visitedBy.includes(ipAddress)) {
+        if (!forumPost.visitedBy.includes(ipAddress)) {
             await ForumPost.findByIdAndUpdate(forumPostId, { $inc: { views: 1 }, $push: { visitedBy: ipAddress } });
         }
 
@@ -166,11 +165,12 @@ exports.getAllForumPosts = async (req, res) => {
                         path: 'userInfo',
                     })
                     .sort({ viewCount: -1 });
-                res.status(200).json(mostViewedPosts);
+                    res.status(200).json(mostViewedPosts)
 
+            }else {
+                res.status(200).json(recommendedPosts);
             }
 
-            res.status(200).json(recommendedPosts);
 
         } catch (error) {
             res.status(400).json({ error: error.message });
@@ -188,7 +188,7 @@ exports.getAllForumPosts = async (req, res) => {
             if (sortBy === 'mostLiked') {
                 sortOption = { likes: -1 };
             } else if (sortBy === 'mostViewed') {
-                sortOption = { viewCount: -1 };
+                sortOption = { views: -1 };
             } else if (sortBy === 'newPosts') {
                 sortOption = { createdAt: -1 };
             }
