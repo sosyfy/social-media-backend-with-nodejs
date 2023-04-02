@@ -32,13 +32,7 @@ const UserSchema = new mongoose.Schema(
                 },
                 summary: {
                     type: String,
-                },
-                startDate: {
-                    type: String,
-                },
-                endDate: {
-                    type: String,
-                },
+                }
             }
         ],
         education: [

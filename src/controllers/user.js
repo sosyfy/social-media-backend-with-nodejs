@@ -195,7 +195,7 @@ exports.updateUser = async (req, res) => {
         try {
             delete (req.body._id);
             await User.findByIdAndUpdate(req.params.userId, { $set: req.body }, { new: false })
-            const updatedUser = await User.findById(req.params.userId).populate("userInfo")
+            const updatedUser = await User.findById(req.params.userId).sort({ createdAt: -1 }).populate("userInfo")
             res.status(200).json(updatedUser)
         } catch (error) {
             console.log(error);
