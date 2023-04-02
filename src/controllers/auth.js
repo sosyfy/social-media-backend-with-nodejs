@@ -289,6 +289,17 @@ exports.passwordUpdate = async function (req, res, next) {
   }
 }
 
+exports.updateUser = async (req, res) => {
+
+      try {
+          await Auth.findByIdAndUpdate(req.params.userId, { $set: req.body }, { new: false })
+          const updatedUser = await User.findOne({ email : req.body.email}).populate("userInfo")
+          res.status(200).json(updatedUser)
+      } catch (error) {
+          res.status(500).json(error)
+      }
+}
+
 
 //* Helper functions 
 function createAccessToken(user) {

@@ -97,7 +97,7 @@ exports.getAllUsers = async (req, res) => {
         const users = await User.find().populate('userInfo');
 
         // Get a list of all the IDs of users that the current user is connected with
-        const connectedUserIds = currentUser.connections.map((connection) =>
+        const connectedUserIds = currentUser?.connections.map((connection) =>
             connection._id.toString()
         );
 
@@ -110,10 +110,10 @@ exports.getAllUsers = async (req, res) => {
 
         // Sort suggested users by the number of connections they have in common with the current user and with each other
         suggestedUsers.sort((a, b) => {
-            const aCommonConnections = a.connections.filter((connection) =>
+            const aCommonConnections = a?.connections.filter((connection) =>
                 connectedUserIds.includes(connection._id.toString())
             );
-            const bCommonConnections = b.connections.filter((connection) =>
+            const bCommonConnections = b?.connections.filter((connection) =>
                 connectedUserIds.includes(connection._id.toString())
             );
             const aSharedConnections = suggestedUsers
@@ -193,11 +193,13 @@ exports.updateUser = async (req, res) => {
 
     if (req.params.userId.toString() === req.user.id.toString()) {
         try {
-            const updatedUser = await User.findByIdAndUpdate(req.params.userId, { $set: req.body }, { new: false })
-            return res.status(200).json(updatedUser)
-
+            delete (req.body._id);
+            await User.findByIdAndUpdate(req.params.userId, { $set: req.body }, { new: false })
+            const updatedUser = await User.findById(req.params.userId).populate("userInfo")
+            res.status(200).json(updatedUser)
         } catch (error) {
-            return res.status(500).json(error)
+            console.log(error);
+            res.status(500).json(error)
         }
     } else {
         return res.status(500).json({ msg: "You can change only your own profile!" })
