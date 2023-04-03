@@ -19,7 +19,7 @@ exports.createPost = async (req, res) => {
 
         let result;
 
-        if (req.files) {
+        if (req.files !== undefined ) {
             let file = req.files.media;
             result = await cloudinary.uploader.upload(file.tempFilePath, {
                 folder: "posts"
