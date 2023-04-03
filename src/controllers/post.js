@@ -17,27 +17,32 @@ exports.createPost = async (req, res) => {
             api_secret: config.cloudinary.secret
         });
 
-        let result;
 
-        if (req.files !== undefined ) {
-            let file = req.files.media;
-            result = await cloudinary.uploader.upload(file.tempFilePath, {
-                folder: "posts"
-            })
-            const userId = mongoose.Types.ObjectId(req.user.id)
-            const user = await User.findById(userId)
-            await Post.create({ title: req.body.title, user: userId, userInfo: user.userInfo, photo: result.secure_url })
-
-        } else {
-            const userId = mongoose.Types.ObjectId(req.user.id)
-            const user = await User.findById(userId)
-            await Post.create({ title: req.body.title, user: userId, userInfo: user.userInfo })
+        let file = req.files.media;
+        let photoUrl = null;
+        if (file) {
+          // Upload file to Cloudinary and get the URL
+          const result = await cloudinary.uploader.upload(file.tempFilePath, {
+            folder: "posts"
+          });
+          photoUrl = result.secure_url;
         }
-
-
-
         
-        const posts = await Post.find().populate("userInfo").sort({ createdAt: -1 });
+        const user = await User.findById(req.user.id);
+        
+        // Create the post with or without the photo
+        await Post.create({
+          title: req.body.title,
+          user: req.user.id,
+          userInfo: user.userInfo,
+          photo: photoUrl
+        });
+
+   
+        const posts = await Post.find()
+          .populate("userInfo")
+          .sort({ createdAt: -1 });
+       
 
         return res.status(201).json(posts)
     } catch (error) {
