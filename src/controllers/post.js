@@ -37,7 +37,7 @@ exports.createPost = async (req, res) => {
 
 
         
-        const posts = await Post.find().populate("userInfo")
+        const posts = await Post.find().populate("userInfo").sort({ createdAt: -1 });
 
         return res.status(201).json(posts)
     } catch (error) {
